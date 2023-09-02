@@ -2,17 +2,29 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
-func say(s string) {
+var wg sync.WaitGroup
+
+func handlePanic() {
+	if r := recover(); r != nil {
+		fmt.Println("PANIC")
+	}
+}
+
+func printStuff() {
+	defer wg.Done()
+	defer handlePanic()
 	for i := 0; i < 3; i++ {
-		fmt.Println(s)
+		fmt.Println(i)
 		time.Sleep(time.Millisecond * 300)
 	}
 }
 
 func main() {
-	say("Hello")
-	say("There")
+	wg.Add(1)
+	go printStuff()
+	wg.Wait()
 }
